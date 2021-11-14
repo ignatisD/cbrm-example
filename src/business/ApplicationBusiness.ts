@@ -1,3 +1,4 @@
+import { Options } from "nodemailer/lib/mailer";
 // Interfaces
 import { IJobData } from "@ignatisd/cbrm/lib/interfaces/helpers/QueuedJob";
 // Helpers
@@ -6,6 +7,8 @@ import Logger from "@ignatisd/cbrm/lib/helpers/Logger";
 // Business
 import Business from "@ignatisd/cbrm/lib/business/Business";
 import cronTab from "../config/cronTab";
+import Email from "@ignatisd/cbrm/lib/helpers/Email";
+import JsonResponse from "@ignatisd/cbrm/lib/helpers/JsonResponse";
 
 export default class ApplicationBusiness extends Business {
 
@@ -23,5 +26,28 @@ export default class ApplicationBusiness extends Business {
                 Logger.info(res.get());
             });
         });
+    }
+
+    public async testQueues() {
+        const emailOptions: Options = {
+            from: "ignatios@drakoulas.gr",
+            to: process.env.APPLICATION_EMAIL,
+            subject: "Test email",
+            html: "<h1>Hello World!</h1>"
+        };
+        return this.queue()
+            .setup("notifyEmail", [emailOptions])
+            .later(20000)
+            .fire();
+    }
+
+    public async notifyEmail(emailOptions: Options) {
+        try {
+            const email = new Email(emailOptions);
+            return await email.send();
+        } catch (e) {
+            this.exception(e, "notifyEmail");
+            return JsonResponse.caught(e);
+        }
     }
 }

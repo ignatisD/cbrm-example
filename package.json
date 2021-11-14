@@ -40,11 +40,18 @@
     "exec": "ts-node"
   },
   "dependencies": {
-    "@ignatisd/cbrm": "^2.0.0",
-    "@ignatisd/cbrm-mongoose": "^1.2.0"
+    "@ignatisd/cbrm": "^3.0.0",
+    "@ignatisd/cbrm-mongoose": "^3.0.0",
+    "i18n": "^0.9.1",
+    "mongoose": "6.0.7",
+    "mongoose-aggregate-paginate-v2": "^1.0.5",
+    "mongoose-paginate-v2": "^1.4.2",
+    "mongoose-slug-updater": "^3.3.0",
+    "nodemailer": "^6.4.6"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/nodemailer": "^6.4.0",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
     "eslint": "^8.1.0",
