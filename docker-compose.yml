@@ -28,4 +28,13 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 1025
+        target: 1025
+      - mode: host
+        protocol: tcp
+        published: 8025
+        target: 8025
 

@@ -33,6 +33,13 @@ export default class ApplicationController extends Controller<ApplicationBusines
                     model: "Route"
                 }
             },
+            {
+                name: "Test Queues and email",
+                path: "/test",
+                verb: "get",
+                method: "testQueues",
+                ctrl: this
+            },
             // DO NOT REPLACE OR REMOVE THE BELOW COMMENT!!!!!
             // CRUD
 
@@ -74,6 +81,15 @@ export default class ApplicationController extends Controller<ApplicationBusines
                 build: process.env.BUILD,
                 pm2: process.env.NODE_APP_INSTANCE
             }));
+        } catch (e) {
+            res.status(500).json(new JsonResponse().exception(e));
+        }
+    }
+
+    async testQueues(req: Request, res: Response) {
+        try {
+            const response = await this.business(req).testQueues();
+            res.json(response);
         } catch (e) {
             res.status(500).json(new JsonResponse().exception(e));
         }
