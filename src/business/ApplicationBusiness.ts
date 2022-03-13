@@ -32,8 +32,8 @@ export default class ApplicationBusiness extends Business {
         const emailOptions: Options = {
             from: "ignatios@drakoulas.gr",
             to: process.env.APPLICATION_EMAIL,
-            subject: "Test email",
-            html: "<h1>Hello World!</h1>"
+            subject: "Test email from Queue",
+            html: "<h1>Hello Queue!</h1>"
         };
         return this.queue()
             .setup("notifyEmail", [emailOptions])
@@ -43,6 +43,7 @@ export default class ApplicationBusiness extends Business {
 
     public async notifyEmail(emailOptions: Options) {
         try {
+            // Logger.info(emailOptions);
             const email = new Email(emailOptions);
             return await email.send();
         } catch (e) {

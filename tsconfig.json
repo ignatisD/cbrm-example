@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2020",
-    "skipLibCheck": true,
     "noImplicitAny": false,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -14,7 +13,7 @@
     ]
   },
   "include": [
-    "src"
+    "./src/*"
   ],
   "exclude": [
     "node_modules",

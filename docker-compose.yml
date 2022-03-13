@@ -1,16 +1,21 @@
 version: "3.7"
 
+volumes:
+  mongosolo: {}
+  elasticsolo: {}
+
 services:
 
   cbrm:
     hostname: "cbrm"
-    image: node:14.17.3
+    image: node:${NODEJS_VERSION:-16.14.0}
     environment:
       - NODE_TYPE=main-worker
     tty: true
     user: "1000:1000"
     volumes:
       - ".:/var/www"
+    working_dir: "/var/www"
     ports:
       - mode: host
         protocol: tcp
@@ -19,22 +24,75 @@ services:
     command: [ "npm", "start" ]
 
   redis:
-    image: redis:6
+    hostname: redis
+    image: redis:${REDIS_VERSION:-6}
     ports:
-      - mode: host
-        protocol: tcp
-        published: 6379
-        target: 6379
+      - "${ELASTIC_PORT:-6379}:6379"
 
   mailhog:
+    hostname: mailhog
     image: mailhog/mailhog
     ports:
-      - mode: host
-        protocol: tcp
-        published: 1025
-        target: 1025
-      - mode: host
-        protocol: tcp
-        published: 8025
-        target: 8025
+      - "1025:1025"
+      - "8025:8025"
 
+  mongosolo:
+    hostname: mongosolo
+    dns:
+      - "8.8.8.8"
+      - "8.8.4.4"
+    dns_search: ''
+    image: mongo:${MONGODB_VERSION:-4.4.0}
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-secret}
+      MONGO_INITDB_DATABASE: "cbrm"
+    tty: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    volumes:
+      - mongosolo:/data/db
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    command:
+      - "--bind_ip_all"
+      - "--port"
+      - "27017"
+      - "--journal"
+
+  elasticsolo:
+    hostname: elasticsolo
+    dns:
+      - "8.8.8.8"
+      - "8.8.4.4"
+    dns_search: ''
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.17.0}
+    environment:
+      - "network.host=0.0.0.0"
+      - "network.publish_host=elasticsolo"
+      - "transport.publish_host=elasticsolo"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g -Des.transport.cname_in_publish_address=true"
+      - "xpack.security.enabled=false"
+      - "node.name=elasticsolo"
+      - "node.roles=master,data,ingest"
+      - "discovery.type=single-node"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    volumes:
+      - elasticsolo:/usr/share/elasticsearch/data
+    ports:
+      - "${ELASTIC_PORT:-9200}:9200"

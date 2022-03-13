@@ -6,6 +6,7 @@ import IRoute from "@ignatisd/cbrm/lib/interfaces/helpers/Route";
 import { PermissionLevel } from "@ignatisd/cbrm/lib/interfaces/models/Permission";
 import JsonResponse from "@ignatisd/cbrm/lib/helpers/JsonResponse";
 import ApplicationBusiness from "../business/ApplicationBusiness";
+import { Options } from "nodemailer/lib/mailer";
 
 export default class ApplicationController extends Controller<ApplicationBusiness> implements IAppRoutes {
 
@@ -34,8 +35,15 @@ export default class ApplicationController extends Controller<ApplicationBusines
                 }
             },
             {
-                name: "Test Queues and email",
-                path: "/test",
+                name: "Test email",
+                path: "/email",
+                verb: "get",
+                method: "testEmail",
+                ctrl: this
+            },
+            {
+                name: "Test Queues",
+                path: "/queue",
                 verb: "get",
                 method: "testQueues",
                 ctrl: this
@@ -89,6 +97,21 @@ export default class ApplicationController extends Controller<ApplicationBusines
     async testQueues(req: Request, res: Response) {
         try {
             const response = await this.business(req).testQueues();
+            res.json(response);
+        } catch (e) {
+            res.status(500).json(new JsonResponse().exception(e));
+        }
+    }
+
+    async testEmail(req: Request, res: Response) {
+        try {
+            const emailOptions: Options = {
+                from: "ignatios@drakoulas.gr",
+                to: process.env.APPLICATION_EMAIL,
+                subject: "Test email",
+                html: "<h1>Hello World!</h1>"
+            };
+            const response = await this.business(req).notifyEmail(emailOptions);
             res.json(response);
         } catch (e) {
             res.status(500).json(new JsonResponse().exception(e));
