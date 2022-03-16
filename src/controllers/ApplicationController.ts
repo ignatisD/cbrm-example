@@ -1,14 +1,18 @@
-import { Request, Response } from "express";
 import * as path from "path";
-import Controller from "@ignatisd/cbrm/lib/controllers/Controller";
-import IAppRoutes, { ISimpleRoute } from "@ignatisd/cbrm/lib/interfaces/routes/AppRoutes";
-import IRoute from "@ignatisd/cbrm/lib/interfaces/helpers/Route";
-import { PermissionLevel } from "@ignatisd/cbrm/lib/interfaces/models/Permission";
-import JsonResponse from "@ignatisd/cbrm/lib/helpers/JsonResponse";
-import ApplicationBusiness from "../business/ApplicationBusiness";
+import { Request, Response } from "express";
 import { Options } from "nodemailer/lib/mailer";
+import {
+    Configuration,
+    Controller,
+    IAppRoutes,
+    IRoute,
+    ISimpleRoute,
+    JsonResponse,
+    PermissionLevel
+} from "@ignatisd/cbrm";
+import { ApplicationBusiness } from "../business/ApplicationBusiness";
 
-export default class ApplicationController extends Controller<ApplicationBusiness> implements IAppRoutes {
+export class ApplicationController extends Controller<ApplicationBusiness> implements IAppRoutes {
 
     constructor() {
         super(ApplicationBusiness);
@@ -96,7 +100,13 @@ export default class ApplicationController extends Controller<ApplicationBusines
 
     async testQueues(req: Request, res: Response) {
         try {
-            const response = await this.business(req).testQueues();
+            const emailOptions: Options = {
+                from: Configuration.get("appEmail"),
+                to: "example@example.com",
+                subject: "Test email from Queue",
+                html: "<h1>Hello Queue!</h1>"
+            };
+            const response = await this.business(req).testQueues(emailOptions);
             res.json(response);
         } catch (e) {
             res.status(500).json(new JsonResponse().exception(e));
@@ -106,14 +116,15 @@ export default class ApplicationController extends Controller<ApplicationBusines
     async testEmail(req: Request, res: Response) {
         try {
             const emailOptions: Options = {
-                from: "ignatios@drakoulas.gr",
-                to: process.env.APPLICATION_EMAIL,
+                from: Configuration.get("appEmail"),
+                to: "ignatios@drakoulas.gr",
                 subject: "Test email",
                 html: "<h1>Hello World!</h1>"
             };
             const response = await this.business(req).notifyEmail(emailOptions);
             res.json(response);
         } catch (e) {
+            this.exception(req, e, "testEmail");
             res.status(500).json(new JsonResponse().exception(e));
         }
     }
