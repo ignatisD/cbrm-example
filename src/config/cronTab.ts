@@ -1,7 +1,6 @@
-import { CronTab } from "@ignatisd/cbrm/lib/interfaces/helpers/QueuedJob";
+import { CronTab } from "@ignatisd/cbrm";
 
 // ? https://crontab.guru/
 
-const cronTab: CronTab = {
+export const cronTab: CronTab = {
 };
-export default cronTab;

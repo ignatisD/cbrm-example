@@ -1,21 +1,18 @@
-import Server from "@ignatisd/cbrm/lib/Server";
-import { MongooseConnector } from "@ignatisd/cbrm-mongoose";
-import IRoute from "@ignatisd/cbrm/lib/interfaces/helpers/Route";
-import * as mongoosePaginate from "mongoose-paginate-v2";
-import * as mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-import * as mongooseSlugUpdater from "mongoose-slug-updater";
-import { realIntl } from "@ignatisd/cbrm-mongoose";
 import { languageOptions } from "./config/languageOptions";
-import { IServerConfiguration } from "@ignatisd/cbrm/lib/helpers/ServerConfiguration";
+import * as cbrm from "@ignatisd/cbrm";
+import {AppConfiguration} from "./interfaces/helpers/AppConfiguration";
 
-export class MyServer extends Server {
+// MongoDB - Mongoose
+import { MongooseConnector } from "@ignatisd/cbrm-mongoose";
+import * as mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import * as mongoosePaginate from "mongoose-paginate-v2";
+import { realIntl } from "@ignatisd/cbrm-mongoose";
+import {Configuration} from "@ignatisd/cbrm";
 
-    constructor(configuration: IServerConfiguration) {
+export class MyServer extends cbrm.Server<AppConfiguration> {
+
+    constructor(configuration: Configuration<AppConfiguration>) {
         super(configuration);
-    }
-
-    public static bootstrap(configuration: IServerConfiguration): Promise<Server> {
-        return new this(configuration).init();
     }
 
     public databaseConnection(): Promise<unknown> {
@@ -23,7 +20,6 @@ export class MyServer extends Server {
         connector.plugins([
             {fn: mongoosePaginate},
             {fn: mongooseAggregatePaginate},
-            {fn: mongooseSlugUpdater},
             {
                 fn: realIntl,
                 opts: {
@@ -42,8 +38,8 @@ export class MyServer extends Server {
         });
     }
 
-    public getApplicationRoutes(): IRoute[] {
-        const ApplicationController = require("./controllers/ApplicationController").default;
+    public getApplicationRoutes(): cbrm.IRoute[] {
+        const { ApplicationController } = require("./controllers/ApplicationController");
         return new ApplicationController().routes();
     }
 

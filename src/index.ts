@@ -1,10 +1,13 @@
 import { MyServer } from "./MyServer";
-import Authenticator from "@ignatisd/cbrm/lib/helpers/Authenticator";
+import {Authenticator, Configuration} from "@ignatisd/cbrm";
 import { languageOptions } from "./config/languageOptions";
+import {AppConfiguration} from "./interfaces/helpers/AppConfiguration";
 
 MyServer.setAuthenticator(Authenticator);
-const server = MyServer.bootstrap({
+const configuration = Configuration.instance<AppConfiguration>().setup({
     apiName: "test",
     envFile: ".env",
-    languageOptions: languageOptions
+    languageOptions: languageOptions,
+    queues: true
 });
+MyServer.bootstrap(configuration);
